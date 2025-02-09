@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="display_small">#000000</color>
+    <color name="text_medium">#FF4E4B66</color>
+    <color name="text_title">#4D861F</color>
+    <color name="body">#4E4B66</color>
+    <color name="input_background">#fff</color>
+    <color name="placeholder">#A0A3BD</color>
+    <color name="shimmer">#C3C3C3</color>
+    <color name="green">#4D861F</color>
+    <color name="black">#140201</color>
+    <color name="red">#F44336</color>
+</resources>
