@@ -31,6 +31,9 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,6 +45,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.code.newsapp.R
+import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
+import com.code.newsapp.presentation.dilaog.InfoDialog
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.presentation.search.SearchScreen
@@ -56,6 +61,7 @@ fun DrawerScreen(
     navigateToDetails: (Article?) -> Unit,
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
+    status: State<ConnectivityObserver.Status>,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -74,15 +80,39 @@ fun DrawerScreen(
                 }
             })
         }) { padding ->
-            ScreenContent(
-                modifier = Modifier.padding(padding),
-                navigateToDetails,
-                searchNewsViewModel,
-                navController,
-            )
+
+            val infoDialog = remember {
+                mutableStateOf(false)
+            }
+
+            if (infoDialog.value) {
+                InfoDialog(
+                    tittle = "Whoops!",
+                    desc = "No Internet Connection found.\n" + "Check your connection or try again.",
+                    onDismiss = {
+                        infoDialog.value = false
+                    }
+                )
+            }else{
+                ScreenContent(
+                    modifier = Modifier.padding(padding),
+                    navigateToDetails,
+                    searchNewsViewModel,
+                    navController,
+                )
+            }
+
+            when(status.value){
+                ConnectivityObserver.Status.Available ->  infoDialog.value = false
+                ConnectivityObserver.Status.Unavailable -> infoDialog.value = true
+                ConnectivityObserver.Status.Losing -> infoDialog.value = false
+                ConnectivityObserver.Status.Lost ->  infoDialog.value = true
+                else -> infoDialog.value = false
+            }
+
+
         }
     }
-
 }
 
 @Composable

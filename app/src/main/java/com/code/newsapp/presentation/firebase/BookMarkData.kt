@@ -1,6 +1,5 @@
 package com.code.newsapp.presentation.firebase
 
-import android.annotation.SuppressLint
 import android.util.Log
 import com.code.newsapp.presentation.news.model.response.Article
 import com.google.firebase.database.DataSnapshot
@@ -47,6 +46,7 @@ object BookMarkData {
                     article.add(news!!)
                 }
                 trySend(articles).isSuccess
+
             }
 
             override fun onCancelled(error: DatabaseError) {

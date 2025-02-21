@@ -1,7 +1,5 @@
 package com.code.newsapp.presentation.search
 
-import android.util.Log
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,11 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.code.newsapp.presentation.common.ArticleCard
@@ -39,7 +35,6 @@ fun SearchScreen(
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
 ) {
-
     Column(
         modifier = Modifier
             .padding(
@@ -65,6 +60,7 @@ fun SearchScreen(
         )
 
 
+
         SearchItemScreen(searchNewsViewModel, navigateToDetails, navController)
     }
 }
@@ -76,19 +72,19 @@ fun SearchItemScreen(
     navController: NavHostController,
 ) {
 
-
     var isLoading = rememberSaveable {
         mutableStateOf(true)
     }
 
     LaunchedEffect(Unit) {
-        delay(1000)
+        delay(2000)
         isLoading.value = false
     }
 
     LaunchedEffect(Unit) {
         newsViewModel.fetchTopHeadline()
     }
+
 
     val news = newsViewModel.newsSearchLiveData.observeAsState()
     val topNews = newsViewModel.topHeadNewsLiveData.observeAsState()

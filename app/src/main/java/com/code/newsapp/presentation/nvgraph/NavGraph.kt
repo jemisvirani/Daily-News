@@ -1,6 +1,5 @@
 package com.code.newsapp.presentation.nvgraph
 
-import android.util.Log
 import android.view.animation.OvershootInterpolator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -21,6 +20,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.code.newsapp.R
+import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.presentation.news_navigator.NewsNavigator
@@ -34,7 +34,9 @@ import kotlinx.coroutines.delay
 fun NavGraph(
     navController: NavHostController,
     searchNewsViewModel: SearchNewsViewModel,
-    articlesBookMark: State<List<Article?>>
+    articlesBookMark: State<List<Article?>>,
+    articlesBookMarkIcon: State<List<Article?>>,
+    status: State<ConnectivityObserver.Status>,
 ) {
     NavHost(navController = navController, startDestination = "splashScreen") {
 
@@ -49,7 +51,7 @@ fun NavGraph(
 
         composable("mainScreen") {
             NewsNavigator(
-                searchNewsViewModel, articlesBookMark, navController,
+                searchNewsViewModel, articlesBookMark, navController,articlesBookMarkIcon,status
             )
         }
     }

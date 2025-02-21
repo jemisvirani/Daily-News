@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.code.newsapp.presentation.firebase.BookMarkData.fetchBookMarkNews
@@ -25,8 +26,11 @@ class SearchNewsViewModel(val searchRepository: NewsSearchRepository) : ViewMode
      var emptyMutableSearch = mutableStateOf(false)
     val emptySearchState : State<Boolean> = emptyMutableSearch
 
-    private val _articles = MutableStateFlow<List<Article?>>(emptyList())
-    val articles : StateFlow<List<Article?>> = _articles
+    private val _articles = MutableLiveData<List<Article?>>(emptyList())
+    val articles : LiveData<List<Article?>> = _articles
+
+    private val _articlesBookMarkIcon = MutableStateFlow<List<Article?>>(emptyList())
+    val articlesBookMarkIcon : StateFlow<List<Article?>> = _articlesBookMarkIcon
 
     private val _topItemData = MutableStateFlow<List<Article?>>(emptyList())
     val topItemData : StateFlow<List<Article?>> = _topItemData
@@ -73,7 +77,9 @@ class SearchNewsViewModel(val searchRepository: NewsSearchRepository) : ViewMode
         viewModelScope.launch(Dispatchers.IO){
             _topItemData.value = searchRepository.topItemData.value
                 fetchBookMarkNews().collect{ itList ->
-                    _articles.value = itList
+                    _articles.postValue(itList)
+                    _articlesBookMarkIcon.value = itList
+                    Log.e("BookData",itList.toString())
             }
         }
     }

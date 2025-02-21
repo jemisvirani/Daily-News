@@ -59,7 +59,8 @@ fun DetailsTopBar(
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back_arrow),
                     contentDescription = null,
-                    tint = Color(0xFF4D861F)
+                    tint = Color(0xFF4D861F),
+                    modifier = Modifier.size(16.sdp)
                 )
             }
         },
