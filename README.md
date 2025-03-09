@@ -10,4 +10,4 @@ Welcome to the Daily News! This project delivers the latest news updates, keepin
 <img img width="360" height="640" alt="Screenshot" src="https://github.com/jemisvirani/Daily-News/blob/5326b7a4c202df57ed12edd2ac68fd513c7725e4/Screenshot_20250303_173658.jpg">
 
 # Things i used to build this app
-<img width="716" alt="Screenshot" src="https://github.com/mohammednawas8/NewsApp/assets/78867217/f9e80bb2-f066-4b90-a537-55d4e0bf07ca">
+<img width="716" alt="Screenshot" src="https://github.com/jemisvirani/Daily-News/blob/21defa32fe25ec7649f6caead152f65a85c5ac92/depedency.png">
