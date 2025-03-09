@@ -1,4 +1,4 @@
-![image](https://github.com/user-attachments/assets/77527156-6039-451e-ad18-9f07510e28b1)# Daily News
+# Daily News
 Welcome to the Daily News! This project delivers the latest news updates, keeping you informed about current events, technology, sports, entertainment, business and more.
 # Preview 
 ![image alt] (https://github.com/jemisvirani/Daily-News/blob/5326b7a4c202df57ed12edd2ac68fd513c7725e4/Screenshot_20250303_173611.jpg)
