@@ -9,34 +9,41 @@ import com.google.firebase.database.ValueEventListener
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import java.util.UUID
 
 object BookMarkData {
 
-    fun saveBookMarkNews(article: Article) {
+    fun saveBookMarkNews(article: Article, uniqueID: String) {
+
         FirebaseDatabase.getInstance().getReference("BookMarkNews")
-            .child("SaveBookMark/${article.publishedAt}").setValue(article)
+            .child("DeviceID/${UUID.randomUUID()}")
+            .child("TimeStamp/${System.currentTimeMillis()}").setValue(article)
             .addOnSuccessListener {
 
             }
     }
 
-    fun removeBookMarkNews(article: Article){
-        FirebaseDatabase.getInstance().getReference("BookMarkNews")
-            .child("SaveBookMark/${article.publishedAt}")
+    fun removeBookMarkNews(orCreateUniqueID: String) {
+        FirebaseDatabase.getInstance().getReference("BookMarkNews").
+        child("DeviceID/${UUID.randomUUID()}")
+            .child("TimeStamp/${System.currentTimeMillis()}")
             .removeValue()
             .addOnSuccessListener {
-                // Action on successful deletion
+                Log.d("Firebase", "Data removed successfully")
             }
             .addOnFailureListener { exception ->
-                // Handle failure
-                Log.e("FirebaseError", "Failed to remove bookmark: ${exception.message}")
+                Log.e("Firebase", "Failed to remove data ${exception.message}")
             }
+
     }
 
     fun fetchBookMarkNews(): Flow<List<Article?>> = callbackFlow {
         val db = FirebaseDatabase.getInstance().getReference("BookMarkNews").child("SaveBookMark")
+            .child("TimeStamp")
+
         val eventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
+
                 val articles = snapshot.children.mapNotNull { it.getValue(Article::class.java) }
 
                 val article = ArrayList<Article?>()
@@ -45,7 +52,7 @@ object BookMarkData {
                     val news = articles.getValue(Article::class.java)
                     article.add(news!!)
                 }
-                trySend(articles).isSuccess
+                trySend(article).isSuccess
 
             }
 
@@ -59,7 +66,6 @@ object BookMarkData {
             db.removeEventListener(eventListener)
         }
     }
-
 
 
 }

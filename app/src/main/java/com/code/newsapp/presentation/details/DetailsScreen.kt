@@ -31,10 +31,9 @@ import com.code.newsapp.presentation.Dimens.ArticleImageHeight
 import com.code.newsapp.presentation.Dimens.MediumPadding1
 import com.code.newsapp.presentation.details.components.DetailsTopBar
 import com.code.newsapp.presentation.news.model.response.Article
-import com.code.newsapp.presentation.news.utils.Const
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.ui.theme.NewsAppTheme
-import com.code.newsapp.utils.Pref.getBookMarkArrayList
+import com.code.newsapp.utils.Pref
 
 @Composable
 fun DetailScreen(
@@ -45,17 +44,51 @@ fun DetailScreen(
 ) {
 
 
-//    val isBookMark = remember {
-//        mutableStateOf(false)
-//    }
 
     val isBookMark = remember { mutableStateOf(false) }
-    LaunchedEffect(Unit) {
-        articlesBookMark.value.filter { it?.publishedAt == article.publishedAt }.forEach{ item ->
-            Log.e("FetchData", "onCreate: ${item?.publishedAt == article.publishedAt}")
-            isBookMark.value = item?.publishedAt == article.publishedAt
-        }
+//    LaunchedEffect(Unit) {
+//        articlesBookMark.value.filter { it?.publishedAt == article.publishedAt }.forEach{ item ->
+//            Log.e("FetchData", "onCreate: ${item?.publishedAt == article.publishedAt}")
+//            isBookMark.value = item?.publishedAt == article.publishedAt
+//        }
+//    }
+
+//    if (Pref.getBookMarkArrayList("SaveBookMarkData").isNotEmpty()) {
+//
+//        Pref.getBookMarkArrayList("SaveBookMarkData").filter {
+//            it.publishedAt == article.publishedAt
+//        }
+//
+//        Log.e(
+//            "BookMarks",
+//            "DetailsTopBar: ${Pref.getBookMarkArrayList("SaveBookMarkData").size}"
+//        )
+//        Pref.getBookMarkArrayList("SaveBookMarkData").iterator().forEach { it ->
+//            Log.e("BookMarks", "DetailsTopBar: ${it}")
+//        }
+//
+//    }
+    val bookmarks = Pref.getBookMarkArrayList("SaveBookMarkData")
+    if (bookmarks.isNotEmpty()) {
+        val filteredBookmarks = bookmarks.filter { it.publishedAt == article.publishedAt }
+
+        Log.e("BookMarks", "DetailsTopBar: ${bookmarks.size}")
+        filteredBookmarks.forEach { Log.e("BookMarks", "DetailsTopBar: $it") }
     }
+    if (bookmarks.asSequence().any { it.publishedAt == article.publishedAt }) {
+        // Bookmark exists
+        Log.e("BookMarks", "DetailsTopBar: Done")
+        isBookMark.value = true
+    }else{
+        isBookMark.value = false
+        Log.e("BookMarks", "DetailsTopBar: False")
+    }
+//    val bookmarkSet = bookmarks.map { it.publishedAt }.toSet()
+//    if (article.publishedAt in bookmarkSet) {
+//        // Article is bookmarked
+//
+//    }else{
+//    }
 
     val context = LocalContext.current
 
@@ -133,14 +166,8 @@ fun DetailScreen(
 }
 
 
-fun clickBookMarks(article : Article) : Boolean{
-    if (getBookMarkArrayList(Const.BOOKMARK).toString().isNotEmpty()){
-        getBookMarkArrayList(Const.BOOKMARK).iterator().forEach {
-            return article.source?.id.toString() == it.bookMark.toString()
-        }
-    }
-    return false
-}
+
+
 @Preview(showBackground = true)
 @Composable
 fun DetailScreenPreview() {

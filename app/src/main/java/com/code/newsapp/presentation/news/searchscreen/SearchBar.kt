@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -43,6 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import com.code.newsapp.R
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
@@ -55,7 +57,7 @@ fun SearchBar(
     hint: String,
     modifier: Modifier = Modifier,
     isEnabled: (Boolean) = true,
-    height: Dp = 70.sdp,
+    height: Dp = 60.sdp,
     elevation: Dp = 3.sdp,
     cornerShape: Shape = RoundedCornerShape(8.sdp),
     backgroundColor: Color = Color.White,
@@ -67,6 +69,14 @@ fun SearchBar(
     onSearch: () -> Unit,
     searchNewsViewModel: SearchNewsViewModel
 ) {
+
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp >= 500 // Check if it's a tablet
+
+    val height = if (isTablet) 60.sdp else 70.sdp
+    val horizontalPadding = if (isTablet) 11.sdp else 14.sdp
+    val verticalPadding = if (isTablet) 15.sdp else 15.sdp
+    val searchPadding = if (isTablet) 8.sdp else 10.sdp
 
     val interactionSource = remember {
         MutableInteractionSource()
@@ -88,7 +98,7 @@ fun SearchBar(
     Row(
         modifier = Modifier
             .height(height)
-            .padding(horizontal = 14.sdp, vertical = 15.sdp)
+            .padding(horizontal = horizontalPadding, verticalPadding)
             .fillMaxWidth()
             .shadow(elevation = elevation, shape = cornerShape)
             .background(color = backgroundColor, shape = cornerShape)
@@ -126,15 +136,20 @@ fun SearchBar(
                 fontWeight = FontWeight.Bold
             ),
             decorationBox = { innerTextField ->
-                if (text.value.text.isEmpty()) {
-                    Text(
-                        text = hint,
-                        color = Color.Gray.copy(alpha = 0.5f),
-
-                        fontWeight = FontWeight.Bold
-                    )
+                Box(
+                    modifier = Modifier.fillMaxSize(), // Takes full available space
+                    contentAlignment = Alignment.CenterStart // Centers text vertically and horizontally
+                ) {
+                    if (text.value.text.isEmpty()) {
+                        Text(
+                            text = hint,
+                            color = Color.Gray.copy(alpha = 0.5f),
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Start // Ensures the hint is centered horizontally
+                        )
+                    }
+                    innerTextField() // Renders the text field
                 }
-                innerTextField()
             },
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Text,
@@ -161,7 +176,7 @@ fun SearchBar(
                 Icon(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(10.sdp),
+                        .padding(searchPadding),
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.app_name),
                     tint = colorResource(id = R.color.black),
@@ -170,7 +185,7 @@ fun SearchBar(
                 Icon(
                     modifier = modifier
                         .fillMaxSize()
-                        .padding(10.sdp),
+                        .padding(searchPadding),
                     imageVector = Icons.Default.Search,
                     contentDescription = "Search",
                     tint = colorResource(id = R.color.black),

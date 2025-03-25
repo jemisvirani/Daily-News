@@ -1,9 +1,12 @@
 package com.code.newsapp.presentation.details.components
 
+import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Bookmark
@@ -17,10 +20,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -30,7 +33,9 @@ import com.code.newsapp.presentation.firebase.BookMarkData.saveBookMarkNews
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.ui.theme.NewsAppTheme
+import com.code.newsapp.utils.Pref
 import network.chaintech.sdpcomposemultiplatform.sdp
+import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,9 +49,16 @@ fun DetailsTopBar(
     isBookMark1: MutableState<Boolean>,
 
     ) {
-    val isBookMark = remember {
-        mutableStateOf(false)
-    }
+
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp > 500  // Check if screen is tablet size
+
+    Log.e(
+        "DetailsTopBar",
+        "Width: ${configuration.screenWidthDp}, Height: ${configuration.screenHeightDp}"
+    )
+    val iconSize = if (isTablet) 16.sdp else 22.sdp
+
     TopAppBar(
         title = { },
         modifier = Modifier.fillMaxWidth(),
@@ -55,48 +67,95 @@ fun DetailsTopBar(
                 id = R.color.body,
             ), navigationIconContentColor = colorResource(id = R.color.body)
         ), navigationIcon = {
-            IconButton(onClick = { onBackClick() }) {
+            IconButton(
+                onClick = { onBackClick() },
+                modifier = Modifier.padding(start = 5.sdp, top = 5.sdp, bottom = 4.sdp)
+            ) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_back_arrow),
                     contentDescription = null,
                     tint = Color(0xFF4D861F),
-                    modifier = Modifier.size(16.sdp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
         },
         actions = {
-            IconButton(onClick = { onBookmarkClick()
+            val context = LocalContext.current
+            IconButton(onClick = {
+                onBookmarkClick()
                 isBookMark1.value = !isBookMark1.value
-                if (isBookMark1.value){
-                    saveBookMarkNews(article)
-                }else{
-                    removeBookMarkNews(article)
+                val articlesToBookmark = listOf(Article(
+                    article.author,
+                    article.content,
+                    article.description,
+                    article.publishedAt,
+                    article.source,
+                    article.title,
+                    article.url,
+                    article.urlToImage
+                ))
+                if (isBookMark1.value) {
+                    addBookmarks(articlesToBookmark)
+                    Log.e("Datats", "true")
+                } else {
+                    removeBookmarks(articlesToBookmark)
+                    Log.e("Datats", "false")
                 }
             }) {
                 Icon(
                     imageVector = if (isBookMark1.value) Icons.Default.Bookmark else Icons.Default.BookmarkBorder,
                     contentDescription = null,
                     tint = if (isBookMark1.value) Color(0xFF4D861F) else Color(0xFF4D861F),
-                    modifier = Modifier.size(24.sdp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
             IconButton(onClick = { onShareClick() }) {
                 Icon(
                     imageVector = Icons.Default.Share,
                     contentDescription = null,
-                    tint = Color(0xFF4D861F)
+                    tint = Color(0xFF4D861F),
+                    modifier = Modifier.size(iconSize)
                 )
             }
-            IconButton (onClick = { onBrowsingClick() }) {
+            IconButton(onClick = { onBrowsingClick() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_network),
                     contentDescription = null,
-                    tint = Color(0xFF4D861F)
+                    tint = Color(0xFF4D861F),
+                    modifier = Modifier
+                        .size(iconSize)
+                        .padding(end = 4.sdp)
                 )
             }
         }
     )
 }
+
+
+fun addBookmarks(newArticles: List<Article>) {
+    val bookmarks = Pref.getBookMarkArrayList("SaveBookMarkData").toMutableList()
+
+    newArticles.forEach { article ->
+        if (bookmarks.none { it.publishedAt == article.publishedAt }) {
+            bookmarks.add(article) // Add only if it doesn't already exist
+        }
+    }
+
+    Pref.saveBookMarkArrayList(bookmarks, "SaveBookMarkData")
+}
+
+fun removeBookmarks(articlesToRemove: List<Article>) {
+    val bookmarks = Pref.getBookMarkArrayList("SaveBookMarkData").toMutableList()
+
+    // Remove all specified articles
+    bookmarks.removeAll { article ->
+        articlesToRemove.any { it.publishedAt == article.publishedAt }
+    }
+
+    // Save the updated list back to preferences
+    Pref.saveBookMarkArrayList(bookmarks, "SaveBookMarkData")
+}
+
 
 @Preview(showBackground = true)
 @Preview(showBackground = true, uiMode = UI_MODE_NIGHT_YES)

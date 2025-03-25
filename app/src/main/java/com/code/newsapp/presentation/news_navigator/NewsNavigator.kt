@@ -9,13 +9,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -24,7 +24,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.code.newsapp.R
 import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
-import com.code.newsapp.presentation.bookmark.BookMarkViewModel
 import com.code.newsapp.presentation.bookmark.BookmarkScreen
 import com.code.newsapp.presentation.details.DetailScreen
 import com.code.newsapp.presentation.home.HomeScreen
@@ -42,9 +41,8 @@ fun NewsNavigator(
     navController1: NavHostController,
     articlesBookMarkIcon: State<List<Article?>>,
     status: State<ConnectivityObserver.Status>,
+    infoDialog: MutableState<Boolean>,
 ) {
-
-    //   राधा
 
     val bottomNavigationItem = remember {
         listOf(
@@ -127,19 +125,10 @@ fun NewsNavigator(
                         AnimatedContentTransitionScope.SlideDirection.Right,
                         animationSpec = tween(700)) + fadeOut(animationSpec = tween(700))
                 }) {
-
-
-
                 HomeScreen(
                     navigateToDetails = { it -> navigateToDetails(navController, it) },
-                    searchNewsViewModel = searchNewsViewModel, navController,status
+                    searchNewsViewModel = searchNewsViewModel, navController,status,infoDialog
                 )
-
-
-
-
-
-
             }
             composable(route = Route.DetailScreen.route,enterTransition = {
                 slideIntoContainer(
@@ -164,16 +153,6 @@ fun NewsNavigator(
                         AnimatedContentTransitionScope.SlideDirection.Right,
                         animationSpec = tween(700)) + fadeOut(animationSpec = tween(700))
                 }) {
-//                val viewModel: DetailViewModel = hiltViewModel()
-//                if (viewModel.sideEffect.value != null) {
-//                    Toast.makeText(
-//                        LocalContext.current,
-//                        viewModel.sideEffect.value,
-//                        Toast.LENGTH_SHORT
-//                    )
-//                        .show()
-//                    viewModel.onEvent(DetailsEvent.RemoveSideEffect)
-//                }
                 navController.previousBackStackEntry?.savedStateHandle?.get<Article?>("article")
                     ?.let { article ->
                         DetailScreen(
@@ -185,12 +164,31 @@ fun NewsNavigator(
                     }
             }
 
-            composable(route = Route.BookmarkScreen.route) {
-                val viewModel: BookMarkViewModel = hiltViewModel()
-                val state = viewModel.state.value
-                BookmarkScreen(state = articlesBookMarkIcon, navigateToDetails = { article ->
-                    navigateToDetails(navController, article)
-                })
+            composable(route = Route.BookmarkScreen.route,enterTransition = {
+                slideIntoContainer(
+                    AnimatedContentTransitionScope.SlideDirection.Left,
+                    animationSpec = tween(700)
+                ) + fadeIn(animationSpec = tween(700))
+            },
+                exitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Left,
+                        animationSpec = tween(700)
+                    ) + fadeOut(animationSpec = tween(700))
+                },
+                popEnterTransition = {
+                    slideIntoContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(700)
+                    ) + fadeIn(animationSpec = tween(700))
+                },
+                popExitTransition = {
+                    slideOutOfContainer(
+                        AnimatedContentTransitionScope.SlideDirection.Right,
+                        animationSpec = tween(700)) + fadeOut(animationSpec = tween(700))
+                }) {
+                BookmarkScreen(state = articlesBookMarkIcon, navigateToDetails = { article -> navigateToDetails(navController, article)
+                },status)
             }
         }
     }

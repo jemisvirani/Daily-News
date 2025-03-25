@@ -3,12 +3,12 @@ plugins {
     alias(libs.plugins.jetbrainsKotlin)
     alias(libs.plugins.daggerHiltAndroid)
     alias(libs.plugins.orgJetbrainsSerialization)
-    alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.kotlinKapt)
+    alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.googleGmsSrvices)
+    alias(libs.plugins.kotlinKapt)
 }
 
 android {
@@ -19,13 +19,14 @@ android {
         applicationId "com.code.newsapp"
         minSdk = 26
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 3
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
         }
+
     }
 
     buildTypes {
@@ -45,16 +46,15 @@ android {
         compose = true
     }
 
-    //    composeOptions {
-    //        kotlinCompilerExtensionVersion = "1.4.7"
-    //    }
+//        composeOptions {
+//            kotlinCompilerExtensionVersion = "1.4.7"
+//        }
 
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-
 
 
 }
@@ -88,16 +88,13 @@ dependencies {
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
 
-
-
     //Compose Navigation
-    implementation libs.androidx.navigation.compose
 
     //Dagger Hilt
     implementation libs.hilt.android
-    kapt libs.hilt.compiler
+//    kapt libs.hilt.compiler
     implementation libs.androidx.hilt.navigation.compose
-
+    kapt(libs.hilt.android.compiler)
 
     //Retrofit
     implementation libs.retrofit
@@ -120,17 +117,6 @@ dependencies {
     implementation libs.androidx.paging.runtime.ktx
     implementation libs.androidx.paging.compose
 
-    //Room
-//    def room_version = ""
-//    implementation "androidx.room:room-runtime:2.6.1"
-//    kapt "androidx.room:room-compiler:2.6.1"
-//    implementation "androidx.room:room-ktx:2.6.1"
-
-    implementation libs.androidx.room.runtime
-    implementation libs.androidx.room.ktx
-    ksp libs.androidx.room.compiler
-    annotationProcessor libs.androidx.room.compiler
-    androidTestImplementation libs.androidx.room.testing
 
     implementation libs.sdp.ssp.compose.multiplatform
 
@@ -150,6 +136,9 @@ dependencies {
     implementation libs.androidx.navigation.compose.v275
 
     implementation libs.androidx.animation
+
+    implementation libs.logging.interceptor
+
 
 
 

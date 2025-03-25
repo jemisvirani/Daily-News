@@ -2,6 +2,7 @@ package com.code.newsapp.presentation.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.navigation.NavHostController
 import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
@@ -16,7 +17,8 @@ fun HomeScreen(
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
     status: State<ConnectivityObserver.Status>,
+    infoDialog: MutableState<Boolean>,
     ) {
-    DrawerScreen(navigateToDetails = navigateToDetails, searchNewsViewModel = searchNewsViewModel,navController,status)
+    DrawerScreen(navigateToDetails = navigateToDetails, searchNewsViewModel = searchNewsViewModel,navController,status,infoDialog)
 }
 

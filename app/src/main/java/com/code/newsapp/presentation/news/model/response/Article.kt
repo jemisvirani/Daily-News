@@ -1,12 +1,10 @@
 package com.code.newsapp.presentation.news.model.response
 
 import android.os.Parcelable
-import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@Entity()
 data class Article(
     @field:SerializedName("author")
     val author: String? = null,

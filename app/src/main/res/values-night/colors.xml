@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="display_small">#FFFFFFFF</color>
+    <color name="display_small">#000000</color>
     <color name="text_medium">#FFB0B3B8</color>
     <color name="text_title">#E4E6EB</color>
     <color name="body">#B0B3B8</color>

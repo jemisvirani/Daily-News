@@ -13,6 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -20,7 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
 import com.code.newsapp.presentation.common.ArticleCard
+import com.code.newsapp.presentation.dilaog.InfoDialog
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.search.SearchNewsEvent
 import com.code.newsapp.presentation.news.searchscreen.SearchBar
@@ -34,6 +38,8 @@ fun SearchScreen(
     navigateToDetails: (Article?) -> Unit,
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
+    status: State<ConnectivityObserver.Status>,
+    infoDialog: MutableState<Boolean>,
 ) {
     Column(
         modifier = Modifier
@@ -59,9 +65,31 @@ fun SearchScreen(
             searchNewsViewModel = searchNewsViewModel
         )
 
-
-
-        SearchItemScreen(searchNewsViewModel, navigateToDetails, navController)
+        when(status.value){
+            ConnectivityObserver.Status.Available ->  infoDialog.value = false
+            ConnectivityObserver.Status.Unavailable -> infoDialog.value = true
+            ConnectivityObserver.Status.Losing -> infoDialog.value = false
+            ConnectivityObserver.Status.Lost ->  infoDialog.value = true
+            else -> infoDialog.value = false
+        }
+        var isLoading = rememberSaveable {
+            mutableStateOf(true)
+        }
+        LaunchedEffect(Unit) {
+            delay(2000)
+            isLoading.value = false
+        }
+        if (infoDialog.value) {
+            InfoDialog(
+                tittle = "Whoops!",
+                desc = "No Internet Connection found.\n" + "Check your connection or try again.",
+                onDismiss = {
+                    infoDialog.value = false
+                }
+            )
+        }else{
+            SearchItemScreen(searchNewsViewModel, navigateToDetails, navController,isLoading)
+        }
     }
 }
 
@@ -70,32 +98,23 @@ fun SearchItemScreen(
     newsViewModel: SearchNewsViewModel,
     navigateToDetails: (Article?) -> Unit,
     navController: NavHostController,
+    isLoading: MutableState<Boolean>,
 ) {
-
-    var isLoading = rememberSaveable {
-        mutableStateOf(true)
-    }
-
-    LaunchedEffect(Unit) {
-        delay(2000)
-        isLoading.value = false
-    }
 
     LaunchedEffect(Unit) {
         newsViewModel.fetchTopHeadline()
     }
-
 
     val news = newsViewModel.newsSearchLiveData.observeAsState()
     val topNews = newsViewModel.topHeadNewsLiveData.observeAsState()
 
     Column(Modifier.fillMaxSize()) {
         Surface() {
-            if (newsViewModel.emptySearchState.value) {
-                LazyColumn(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                ) {
+            LazyColumn(
+                modifier = Modifier
+                    .wrapContentHeight()
+            ) {
+                if (newsViewModel.emptySearchState.value) {
                     if (news.value?.articles?.isNotEmpty() == true) {
                         items(news.value!!.articles) { it ->
                             ShimmerListItem(
@@ -116,13 +135,8 @@ fun SearchItemScreen(
                             )
                         }
                     }
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .wrapContentHeight()
-                ) {
 
+                } else {
                     if (topNews.value?.articles?.isNotEmpty() == true) {
                         items(topNews.value!!.articles) { it ->
                             ShimmerListItem(
@@ -144,6 +158,7 @@ fun SearchItemScreen(
                         }
                     }
                 }
+
             }
         }
     }

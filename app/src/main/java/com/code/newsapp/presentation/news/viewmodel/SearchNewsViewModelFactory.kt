@@ -1,11 +1,15 @@
 package com.code.newsapp.presentation.news.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import com.code.newsapp.presentation.news.repository.NewsSearchRepository
-
-class SearchNewsViewModelFactory(val searchRepository: NewsSearchRepository) : ViewModelProvider.Factory{
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return SearchNewsViewModel(searchRepository) as T
-    }
-}
+//class SearchNewsViewModelFactory(
+//    private val searchRepository: NewsSearchRepository,
+//    val context: Context,
+//    status: State<ConnectivityObserver.Status>,
+//) : ViewModelProvider.Factory {
+//    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+//        if (modelClass.isAssignableFrom(SearchNewsViewModel::class.java)) {
+//            @Suppress("UNCHECKED_CAST")
+//            return SearchNewsViewModel(searchRepository,context) as T
+//        }
+//        throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
+//    }
+//}

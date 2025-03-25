@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,15 +28,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.code.newsapp.R
+import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
 import com.code.newsapp.presentation.common.ArticleCard
+import com.code.newsapp.presentation.dilaog.InfoDialog
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.shimmer.ShimmerListItem
+import com.code.newsapp.utils.Pref
 import kotlinx.coroutines.delay
 import network.chaintech.sdpcomposemultiplatform.sdp
 import network.chaintech.sdpcomposemultiplatform.ssp
 
 @Composable
-fun BookmarkScreen(state: State<List<Article?>>, navigateToDetails: (Article?) -> Unit) {
+fun BookmarkScreen(
+    state: State<List<Article?>>,
+    navigateToDetails: (Article?) -> Unit,
+    status: State<ConnectivityObserver.Status>
+) {
 
     var isLoading = rememberSaveable {
         mutableStateOf(true)
@@ -63,45 +71,65 @@ fun BookmarkScreen(state: State<List<Article?>>, navigateToDetails: (Article?) -
 
         Spacer(modifier = Modifier.height(10.sdp))
 
-        Column(Modifier.fillMaxSize()) {
+        val infoDialog = remember {
+            mutableStateOf(false)
+        }
 
-            if (state.value.isEmpty()){
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Data not found", color = colorResource(R.color.green), fontSize = 15.ssp)
+        if (infoDialog.value) {
+            InfoDialog(
+                tittle = "Whoops!",
+                desc = "No Internet Connection found.\n" + "Check your connection or try again.",
+                onDismiss = {
+                    infoDialog.value = false
                 }
-            }else{
-                Surface() {
-                    LazyColumn(
-                        modifier = Modifier
-                            .wrapContentHeight()
+            )
+        }else{
+            Column(Modifier.fillMaxSize()) {
+                if (Pref.getBookMarkArrayList("SaveBookMarkData").isEmpty()){
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
                     ) {
-                        items(state.value.size) { index ->
-                            ShimmerListItem(
-                                isLoading = isLoading.value, contentAfterLoading = {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(CircleShape)
-                                            .padding(16.sdp)
-                                    ) {
-                                        ArticleCard(article = state.value[index], onClick = {
-                                            navigateToDetails(state.value[index])
-                                        })
-                                    }
-                                }, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
+                        Text(text = "Data not found", color = colorResource(R.color.green), fontSize = 15.ssp)
+                    }
+                }else{
+                    Surface() {
+                        LazyColumn(
+                            modifier = Modifier
+                                .wrapContentHeight()
+                        ) {
+                            items(Pref.getBookMarkArrayList("SaveBookMarkData").size) { index ->
+                                ShimmerListItem(
+                                    isLoading = isLoading.value, contentAfterLoading = {
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(CircleShape)
+                                                .padding(16.sdp)
+                                        ) {
+                                            ArticleCard(article = Pref.getBookMarkArrayList("SaveBookMarkData")[index], onClick = {
+                                                navigateToDetails(Pref.getBookMarkArrayList("SaveBookMarkData")[index])
+                                            })
+                                        }
+                                    }, modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
-
-
         }
+
+        when(status.value){
+            ConnectivityObserver.Status.Available ->  infoDialog.value = false
+            ConnectivityObserver.Status.Unavailable -> infoDialog.value = true
+            ConnectivityObserver.Status.Losing -> infoDialog.value = false
+            ConnectivityObserver.Status.Lost ->  infoDialog.value = true
+            else -> infoDialog.value = false
+        }
+
     }
 
 }

@@ -4,7 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
-import com.code.newsapp.presentation.news.model.other.BookMark
+import com.code.newsapp.presentation.news.model.response.Article
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import java.lang.reflect.Type
@@ -28,8 +28,8 @@ object Pref {
         return sharedPreferences.getString(key, data).toString()
     }
 
-    fun bookMarkArrayList(list: List<BookMark>, key: String) {
-        val editor : Editor = Pref.sharedPreferences.edit()
+    fun saveBookMarkArrayList(list: List<Article>, key: String) {
+        val editor : Editor = sharedPreferences.edit()
         val gson = Gson()
         val json: String = gson.toJson(list)
         editor.putString(key, json)
@@ -37,11 +37,21 @@ object Pref {
     }
 
 
-    fun getBookMarkArrayList(key: String): List<BookMark> {
+    fun getBookMarkArrayList(key: String): List<Article> {
         val gson = Gson()
-        val json: String = Pref.sharedPreferences.getString(key,"").toString()
-        val type: Type = object : TypeToken<List<BookMark>>() {}.type
-        return gson.fromJson(json, type)
+        val json: String? = sharedPreferences.getString(key, null) // Use null as default instead of ""
+
+        if (json.isNullOrEmpty()) {
+            return emptyList()
+        }
+
+        return try {
+            val type: Type = object : TypeToken<List<Article>>() {}.type
+            gson.fromJson(json, type) ?: emptyList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            emptyList()
+        }
     }
 }
 

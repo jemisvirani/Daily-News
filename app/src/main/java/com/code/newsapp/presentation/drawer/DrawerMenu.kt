@@ -2,6 +2,7 @@ package com.code.newsapp.presentation.drawer
 
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,12 +32,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -46,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.code.newsapp.R
 import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
-import com.code.newsapp.presentation.dilaog.InfoDialog
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.presentation.search.SearchScreen
@@ -62,6 +62,7 @@ fun DrawerScreen(
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
     status: State<ConnectivityObserver.Status>,
+    infoDialog: MutableState<Boolean>,
 ) {
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -80,37 +81,14 @@ fun DrawerScreen(
                 }
             })
         }) { padding ->
-
-            val infoDialog = remember {
-                mutableStateOf(false)
-            }
-
-            if (infoDialog.value) {
-                InfoDialog(
-                    tittle = "Whoops!",
-                    desc = "No Internet Connection found.\n" + "Check your connection or try again.",
-                    onDismiss = {
-                        infoDialog.value = false
-                    }
-                )
-            }else{
-                ScreenContent(
-                    modifier = Modifier.padding(padding),
-                    navigateToDetails,
-                    searchNewsViewModel,
-                    navController,
-                )
-            }
-
-            when(status.value){
-                ConnectivityObserver.Status.Available ->  infoDialog.value = false
-                ConnectivityObserver.Status.Unavailable -> infoDialog.value = true
-                ConnectivityObserver.Status.Losing -> infoDialog.value = false
-                ConnectivityObserver.Status.Lost ->  infoDialog.value = true
-                else -> infoDialog.value = false
-            }
-
-
+            ScreenContent(
+                modifier = Modifier.padding(padding),
+                navigateToDetails,
+                searchNewsViewModel,
+                navController,
+                status,
+                infoDialog
+            )
         }
     }
 }
@@ -121,6 +99,8 @@ fun ScreenContent(
     navigateToDetails: (Article?) -> Unit,
     searchNewsViewModel: SearchNewsViewModel,
     navController: NavHostController,
+    status: State<ConnectivityObserver.Status>,
+    infoDialog: MutableState<Boolean>,
 ) {
     Column(
         modifier = Modifier
@@ -134,7 +114,7 @@ fun ScreenContent(
     ) {
         Spacer(modifier = Modifier.height(40.sdp))
 
-        SearchScreen(navigateToDetails, searchNewsViewModel = searchNewsViewModel,navController)
+        SearchScreen(navigateToDetails, searchNewsViewModel = searchNewsViewModel,navController,status,infoDialog)
 
         Spacer(modifier = Modifier.height(5.sdp))
 
@@ -172,7 +152,7 @@ fun DrawerContent(drawerState: DrawerState, scope: CoroutineScope) {
 
     NavigationDrawerItem(icon = {
         Icon(
-            imageVector = Icons.Rounded.PrivacyTip,
+            imageVector = Icons.Rounded.PrivacyTip, 
             contentDescription = "Privacy",
             modifier = Modifier.size(24.sdp),
             tint = colorResource(R.color.green)
@@ -183,7 +163,7 @@ fun DrawerContent(drawerState: DrawerState, scope: CoroutineScope) {
         scope.launch {
             drawerState.apply {
                 if (isClosed) open() else close()
-                val url = "https://sites.google.com/view/dailywork" // Replace with your desired URL
+                val url = "https://sites.google.com/view/privacypolicy-for-dailynews/home" // Replace with your desired URL
                 val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
                 if (intent.resolveActivity(context.packageManager) != null){
                     context.startActivity(intent)
@@ -240,6 +220,19 @@ fun DrawerContent(drawerState: DrawerState, scope: CoroutineScope) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(onOpenDrawer: () -> Unit) {
+
+    val configuration = LocalConfiguration.current
+    val isTablet = configuration.screenWidthDp > 500  // Check if screen is tablet size
+
+    Log.e("DetailsTopBar", "Width: ${configuration.screenWidthDp}, Height: ${configuration.screenHeightDp}")
+    val iconSize = if (isTablet) 22.sdp else 35.sdp
+
+    val fontSize = when {
+        configuration.screenWidthDp < 360 -> 12.ssp  // Small screens
+        configuration.screenWidthDp < 500 -> 22.ssp  // Normal screens
+        else -> 15.ssp  // Tablets and large devices
+    }
+
     TopAppBar(colors = TopAppBarDefaults.topAppBarColors(
         containerColor = colorResource(R.color.input_background)
     ), navigationIcon = {
@@ -248,7 +241,7 @@ fun TopBar(onOpenDrawer: () -> Unit) {
             contentDescription = "Menu",
             modifier = Modifier
                 .padding(start = 16.sdp)
-                .size(35.sdp)
+                .size(iconSize)
                 .clickable {
                     onOpenDrawer()
                 }, tint = colorResource(R.color.green)
@@ -257,7 +250,7 @@ fun TopBar(onOpenDrawer: () -> Unit) {
         Text(
             text = "Daily news",
             textAlign = TextAlign.Center,
-            fontSize = 22.ssp,
+            fontSize = fontSize,
             fontWeight = FontWeight.Bold,
             color = colorResource(R.color.text_title),
             modifier = Modifier
