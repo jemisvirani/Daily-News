@@ -7,7 +7,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.code.newsapp.presentation.firebase.BookMarkData.fetchBookMarkNews
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.model.response.NewsSearchApiResponse
 import com.code.newsapp.presentation.news.repository.NewsSearchRepository

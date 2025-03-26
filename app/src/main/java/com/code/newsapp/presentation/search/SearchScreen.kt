@@ -1,5 +1,6 @@
 package com.code.newsapp.presentation.search
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -18,8 +20,10 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.code.newsapp.checkinternet.interfaces.ConnectivityObserver
@@ -75,7 +79,7 @@ fun SearchScreen(
         var isLoading = rememberSaveable {
             mutableStateOf(true)
         }
-        LaunchedEffect(Unit) {
+        LaunchedEffect(searchNewsViewModel) {
             delay(2000)
             isLoading.value = false
         }
@@ -110,56 +114,45 @@ fun SearchItemScreen(
 
     Column(Modifier.fillMaxSize()) {
         Surface() {
-            LazyColumn(
-                modifier = Modifier
-                    .wrapContentHeight()
-            ) {
-                if (newsViewModel.emptySearchState.value) {
-                    if (news.value?.articles?.isNotEmpty() == true) {
-                        items(news.value!!.articles) { it ->
-                            ShimmerListItem(
-                                isLoading = isLoading.value, contentAfterLoading = {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(CircleShape)
-                                            .padding(16.sdp)
-                                    ) {
-                                        ArticleCard(article = it, onClick = {
-                                            navigateToDetails(it)
-                                        })
-                                    }
-                                }, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
+            LazyColumn(modifier = Modifier.wrapContentHeight()) {
+                val articles = if (newsViewModel.emptySearchState.value) news.value?.articles else topNews.value?.articles
+                if (articles.isNullOrEmpty()) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillParentMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No news found",
+                                modifier = Modifier
+                                    .padding(16.dp),
+                                textAlign = TextAlign.Center
                             )
                         }
                     }
-
                 } else {
-                    if (topNews.value?.articles?.isNotEmpty() == true) {
-                        items(topNews.value!!.articles) { it ->
-                            ShimmerListItem(
-                                isLoading = isLoading.value, contentAfterLoading = {
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clip(CircleShape)
-                                            .padding(16.sdp)
-                                    ) {
-                                        ArticleCard(
-                                            article = it,
-                                            onClick = { navigateToDetails(it) })
-                                    }
-                                }, modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-                        }
+                    items(articles) { article ->
+                        ShimmerListItem(
+                            isLoading = isLoading.value,
+                            contentAfterLoading = {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clip(CircleShape)
+                                        .padding(16.sdp)
+                                ) {
+                                    ArticleCard(article = article, onClick = { navigateToDetails(article) })
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                        )
                     }
                 }
-
             }
+
         }
     }
 

@@ -1,6 +1,5 @@
 package com.code.newsapp.presentation.details.components
 
-import android.content.Context
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.util.Log
 import androidx.compose.foundation.background
@@ -28,14 +27,11 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.code.newsapp.R
-import com.code.newsapp.presentation.firebase.BookMarkData.removeBookMarkNews
-import com.code.newsapp.presentation.firebase.BookMarkData.saveBookMarkNews
 import com.code.newsapp.presentation.news.model.response.Article
 import com.code.newsapp.presentation.news.viewmodel.SearchNewsViewModel
 import com.code.newsapp.ui.theme.NewsAppTheme
 import com.code.newsapp.utils.Pref
 import network.chaintech.sdpcomposemultiplatform.sdp
-import java.util.UUID
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
