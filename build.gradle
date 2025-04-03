@@ -3,13 +3,10 @@ plugins {
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.comAndroidLibrary) apply false
     alias(libs.plugins.jetbrainsKotlin)  apply false
-    alias(libs.plugins.daggerHiltAndroid) apply false
     alias(libs.plugins.orgJetbrainsSerialization)
     alias(libs.plugins.composeCompiler) apply false
-    alias(libs.plugins.google.devtools.ksp) apply false
     alias(libs.plugins.kotlinParcelize) apply false
     alias(libs.plugins.firebaseCrashlytics) apply false
     alias(libs.plugins.googleGmsSrvices) apply false
-    alias(libs.plugins.kotlinKapt) apply false
 
 }

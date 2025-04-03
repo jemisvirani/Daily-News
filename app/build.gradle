@@ -1,14 +1,11 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsKotlin)
-    alias(libs.plugins.daggerHiltAndroid)
     alias(libs.plugins.orgJetbrainsSerialization)
     alias(libs.plugins.composeCompiler)
-    alias(libs.plugins.google.devtools.ksp)
     alias(libs.plugins.kotlinParcelize)
     alias(libs.plugins.firebaseCrashlytics)
     alias(libs.plugins.googleGmsSrvices)
-    alias(libs.plugins.kotlinKapt)
 }
 
 android {
@@ -45,24 +42,18 @@ android {
     buildFeatures {
         compose = true
     }
-//        composeOptions {
-//            kotlinCompilerExtensionVersion = "1.4.7"
-//        }
 
     packagingOptions {
         resources {
             excludes += '/META-INF/{AL2.0,LGPL2.1}'
         }
     }
-
-
 }
 
 dependencies {
 
     implementation libs.androidx.core.ktx
     implementation libs.androidx.lifecycle.runtime.ktx
-    //noinspection UseTomlInstead
     implementation libs.androidx.activity.compose
     implementation platform(libs.androidx.compose.bom)
     implementation libs.androidx.ui
@@ -77,23 +68,13 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    //Icons 
     implementation libs.androidx.compose.material.icons.extended
-
-    //Splash Api
-    implementation libs.androidx.core.splashscreen
 
     //Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.crashlytics)
     implementation(libs.firebase.analytics)
-
-    //Compose Navigation
-
-    //Dagger Hilt
-    implementation libs.hilt.android
-//    kapt libs.hilt.compiler
-    implementation libs.androidx.hilt.navigation.compose
-    kapt(libs.hilt.android.compiler)
 
     //Retrofit
     implementation libs.retrofit
@@ -102,38 +83,25 @@ dependencies {
     //Coil
     implementation libs.coil.compose
 
-    //Datastore
-    implementation libs.androidx.datastore.preferences
-
     //Compose Foundation
     implementation libs.androidx.foundation
 
     //Accompanist
     implementation libs.accompanist.systemuicontroller
 
-    //Paging 3
-//    def paging_version = ""
-    implementation libs.androidx.paging.runtime.ktx
-    implementation libs.androidx.paging.compose
-
+    //Sdp-ssp
     implementation libs.sdp.ssp.compose.multiplatform
 
     //ViewModel
     implementation libs.androidx.lifecycle.viewmodel.ktx
+
     //LiveData
     implementation libs.androidx.lifecycle.livedata.ktx
-
     implementation libs.compose.runtime.livedata
 
-    implementation (libs.coil.compose)
-
-    implementation(libs.firebase.storage)
-    implementation(libs.firebase.database.ktx)
-
+    //Navigation Compose
     implementation libs.androidx.navigation.compose.v275
 
+    //Animation
     implementation libs.androidx.animation
-
-    implementation libs.logging.interceptor
-
 }
