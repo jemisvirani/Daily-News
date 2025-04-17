@@ -102,6 +102,7 @@ fun SearchItemScreen(
     isLoading: MutableState<Boolean>,
 ) {
 
+
     LaunchedEffect(Unit) {
         newsViewModel.fetchTopHeadline()
     }
